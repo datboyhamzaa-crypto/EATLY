@@ -11,6 +11,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/src/components/error-boundary";
 import { AuthProvider } from "@/src/context/auth-context";
 import { CartProvider } from "@/src/context/cart-context";
+import { OrdersProvider } from "@/src/context/orders-context";
 import { ToastProvider } from "@/src/context/toast-context";
 import { fontAssets } from "@/src/fonts";
 import { queryClient } from "@/src/query-client";
@@ -35,21 +36,26 @@ export default function RootLayout() {
             <KeyboardProvider>
               <AuthProvider>
                 <CartProvider>
-                  <ToastProvider>
-                    <Stack
-                      screenOptions={{
-                        headerShown: false,
-                        contentStyle: { backgroundColor: "#F7F3EE" },
-                      }}
-                    >
-                      <Stack.Screen name="index" />
-                      <Stack.Screen name="(tabs)" />
-                      <Stack.Screen name="auth/login" />
-                      <Stack.Screen name="auth/register" />
-                      <Stack.Screen name="restaurant/[id]" />
-                      <Stack.Screen name="cart" options={{ presentation: "card" }} />
-                    </Stack>
-                  </ToastProvider>
+                  <OrdersProvider>
+                    <ToastProvider>
+                      <Stack
+                        screenOptions={{
+                          headerShown: false,
+                          contentStyle: { backgroundColor: "#F7F3EE" },
+                        }}
+                      >
+                        <Stack.Screen name="index" />
+                        <Stack.Screen name="(tabs)" />
+                        <Stack.Screen name="auth/login" />
+                        <Stack.Screen name="auth/register" />
+                        <Stack.Screen name="restaurant/[id]" />
+                        <Stack.Screen name="cart" options={{ presentation: "card" }} />
+                        <Stack.Screen name="checkout" />
+                        <Stack.Screen name="payment-success" options={{ gestureEnabled: false }} />
+                        <Stack.Screen name="order/[id]" />
+                      </Stack>
+                    </ToastProvider>
+                  </OrdersProvider>
                 </CartProvider>
               </AuthProvider>
             </KeyboardProvider>

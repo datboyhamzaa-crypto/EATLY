@@ -40,6 +40,8 @@ export type Restaurant = {
   capacity_tables: number;
   community_rating: number;
   community_pick: boolean;
+  address: string;
+  open_hours: string;
 };
 
 export type Reel = {
@@ -82,4 +84,28 @@ export type CartItem = {
   quantity: number;
   options: SelectedOption[];
   notes: string;
+};
+
+export type PaymentMethodId = "qris" | "gopay" | "card" | "cash";
+
+export type OrderStatus = "paid" | "preparing" | "ready" | "completed" | "cancelled";
+
+export type DineInInfo = { table: string; time: string };
+
+export type Order = {
+  id: string;
+  code: string; // ETL-XXXX
+  restaurantId: string;
+  restaurantName: string;
+  restaurantAvatar: string;
+  items: CartItem[];
+  dineIn: DineInInfo;
+  paymentMethod: PaymentMethodId;
+  promoCode: string | null;
+  subtotal: number;
+  discount: number;
+  total: number;
+  status: OrderStatus;
+  qrToken: string;
+  createdAt: number;
 };

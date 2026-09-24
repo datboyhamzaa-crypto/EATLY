@@ -107,6 +107,8 @@ class Restaurant(BaseDocument):
     capacity_tables: int = 20
     community_rating: float = 0
     community_pick: bool = False
+    address: str = ""
+    open_hours: str = ""
 
 
 class Reel(BaseDocument):
@@ -478,6 +480,8 @@ async def seed_data():
 
     inserted = {}
     for r in restaurants:
+        r.setdefault("open_hours", "10.00 - 22.00 WIB")
+        r.setdefault("address", "Jl. Kemang Raya No. 10, Jakarta Selatan")
         res = await db.restaurants.insert_one(r)
         inserted[r["name"]] = str(res.inserted_id)
 
