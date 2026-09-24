@@ -1,4 +1,4 @@
-import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
@@ -56,10 +56,12 @@ export default function LoginScreen() {
         bottomOffset={24}
         showsVerticalScrollIndicator={false}
       >
-        <LinearGradient colors={[colors.brandPrimary, "#FB923C"]} style={styles.logo}>
-          <Ionicons name="restaurant" size={30} color={colors.onBrandPrimary} />
-        </LinearGradient>
-        <Text style={styles.brand}>Eatly</Text>
+        <Image
+          source={require("@/assets/images/eatly-logo.png")}
+          style={styles.logoImg}
+          contentFit="contain"
+          testID="login-logo"
+        />
         <Text style={styles.tagline}>Temukan & pesan tempat makan favoritmu</Text>
 
         <View style={styles.card}>
@@ -109,18 +111,7 @@ export default function LoginScreen() {
 const useStyles = makeStyles((colors) => ({
   container: { flex: 1, backgroundColor: colors.surface },
   content: { paddingHorizontal: spacing.lg, alignItems: "center" },
-  logo: {
-    width: 68,
-    height: 68,
-    borderRadius: radius.xl,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: colors.brandPrimary,
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
-  },
+  logoImg: { width: 210, height: 82, marginBottom: spacing.xs },
   brand: { fontFamily: fonts.extrabold, fontSize: 30, color: colors.onSurface, marginTop: spacing.md },
   tagline: { fontFamily: fonts.regular, fontSize: 14, color: colors.muted, marginTop: 4, textAlign: "center" },
   card: {
