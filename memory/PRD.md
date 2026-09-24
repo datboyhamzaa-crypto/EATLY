@@ -28,12 +28,19 @@ Build EATLY, a production-ready food discovery + dine-in pre-order platform. Two
 - Profil: orange header, stats, dark referral card (copy + WhatsApp share), menu rows, logout.
 - 4-tab bottom nav (Beranda, Pesanan, Favorit, Profil); Pesanan is an intentional empty state until Phase 2.
 
+## Implemented (2026-08 / Phase 2) — DONE & verified (frontend arch + checkout flow)
+- Clean data/service layer: src/services/checkout.ts (payment methods, table options, time slots, computeTotals, simulatePayment mock) + src/utils/orders.ts (status metadata + tracking timeline). Promo engine in src/utils/promos.ts.
+- Checkout screen (app/checkout.tsx): dine-in table + time chips, promo code apply/remove, payment method radio list, live totals, validation (pay disabled until table+time+method), KeyboardAvoidingView, mock pay -> createOrder -> clear cart -> payment-success.
+- Payment success (app/payment-success.tsx): QR (react-native-qrcode-svg), order code, dine-in info, total; buttons to track / home. Missing-order guard.
+- Order detail + live tracking (app/order/[id].tsx): timeline paid->preparing->ready->completed (auto-advances via orders-context), QR verification card, dine-in info, items, payment summary, "Tandai Selesai" when ready. Invalid id guard.
+- Pesanan tab wired to orders-context (Sedang Berjalan vs Riwayat), cards -> order detail.
+- Cart checkout button wired to /checkout. Invalid routes -> app/+not-found.tsx.
+- CustomizeSheet fix: add-to-cart button now uses @gorhom BottomSheetFooter (was off-screen on web).
+- Orders persist locally (eatly_orders) and survive reload.
+
 ## Backlog / Remaining
 ### P0 (next phase)
-- Checkout / "Ringkasan & Bayar": dine-in table + time selection, promo code, payment method (QRIS mock), order totals.
-- Mock Payment + Order creation (server-side Order model, statuses created→paid→preparing→ready→completed/cancelled).
-- Order confirmation with QR + order ID; Order tracking; Pesanan tab shows real orders.
-- Review restaurant after completed order (populates Ulasan tab).
+- Move orders server-side (Order model + endpoints) to replace local persistence; real payment gateway swap-in for simulatePayment().
 ### P1
 - Merchant/Restaurant dashboard (desktop-first).
 - Real reviews list on Ulasan tab; ratings write-back.
