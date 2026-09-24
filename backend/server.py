@@ -345,7 +345,12 @@ app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
+    # Bearer-token auth (Authorization header), no cookies — credentials are not
+    # needed. allow_credentials=True combined with a "*" origin is rejected by
+    # browsers (preflight passes but the real request is blocked), which surfaced
+    # as a bare "failed to fetch" on login/register. Keeping credentials False
+    # makes the "*" origin valid for every client.
+    allow_credentials=False,
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
