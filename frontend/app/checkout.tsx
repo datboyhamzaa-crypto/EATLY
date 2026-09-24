@@ -79,22 +79,22 @@ export default function CheckoutScreen() {
     setPaying(true);
     try {
       await simulatePayment(method);
-      const order = createOrder({
-        items,
-        restaurantId: restaurantId ?? "",
-        restaurantName: restaurantName ?? "Restoran",
-        restaurantAvatar: "",
-        dineIn: { table, time },
-        paymentMethod: method,
-        promoCode: promo?.code ?? null,
-        subtotal: totals.subtotal,
-        discount: totals.discount,
-        total: totals.total,
+      const order = await createOrder({
+        restaurant_id: restaurantId ?? "",
+        items: items.map((i) => ({
+          menu_item_id: i.menuItemId,
+          quantity: i.quantity,
+          options: i.options.map((o) => ({ group: o.group, choice: o.choice })),
+          notes: i.notes,
+        })),
+        dine_in: { table, time },
+        payment_method: method,
+        promo_code: promo?.code ?? null,
       });
       clear();
       router.replace({ pathname: "/payment-success", params: { id: order.id } });
-    } catch {
-      show("Pembayaran gagal, coba lagi", "error");
+    } catch (e: any) {
+      show(e?.message ?? "Pembayaran gagal, coba lagi", "error");
       setPaying(false);
     }
   };

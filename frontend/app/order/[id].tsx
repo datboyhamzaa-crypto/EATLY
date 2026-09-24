@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
+import { useEffect, useState } from "react";
 import { ScrollView, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
@@ -27,9 +28,22 @@ export default function OrderDetailScreen() {
   const router = useRouter();
   const { show } = useToast();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { orders, updateStatus } = useOrders();
+  const { orders, cancelOrder, completeOrder } = useOrders();
 
   const order = orders.find((o) => o.id === id);
+
+  const [cancelling, setCancelling] = useState(false);
+  const [now, setNow] = useState(Date.now());
+  // Tick every second so the 5-second cancel window closes on its own.
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const canCancel =
+    !!order &&
+    order.status === "paid" &&
+    typeof order.cancellableUntil === "number" &&
+    now < order.cancellableUntil;
 
   const goBack = () => {
     if (router.canGoBack()) router.back();
@@ -190,18 +204,64 @@ export default function OrderDetailScreen() {
           </View>
         </View>
 
-        {/* Action */}
+        {/* Actions */}
         {order.status === "ready" ? (
           <View style={{ marginTop: spacing.sm }}>
             <Button
               label="Tandai Selesai"
               icon="checkmark-done"
               testID="order-complete"
-              onPress={() => {
-                updateStatus(order.id, "completed");
-                show("Pesanan selesai. Selamat menikmati!", "success");
+              onPress={async () => {
+                try {
+                  await completeOrder(order.id);
+                  show("Pesanan selesai. Selamat menikmati!", "success");
+                } catch (e: any) {
+                  show(e?.message ?? "Gagal menyelesaikan pesanan", "error");
+                }
               }}
             />
+          </View>
+        ) : null}
+
+        {order.status === "completed" && !order.reviewed ? (
+          <View style={{ marginTop: spacing.sm }}>
+            <Button
+              label="Beri Ulasan"
+              icon="star"
+              testID="order-review"
+              onPress={() => router.push({ pathname: "/review/[id]", params: { id: order.id } })}
+            />
+          </View>
+        ) : null}
+
+        {order.status === "completed" && order.reviewed ? (
+          <View style={styles.reviewedTag}>
+            <Ionicons name="checkmark-circle" size={16} color={colors.successSolid} />
+            <Text style={styles.reviewedText}>Kamu sudah memberi ulasan untuk pesanan ini</Text>
+          </View>
+        ) : null}
+
+        {canCancel ? (
+          <View style={{ marginTop: spacing.sm }}>
+            <Button
+              label={cancelling ? "Membatalkan..." : "Batalkan Pesanan"}
+              variant="secondary"
+              icon="close-circle-outline"
+              testID="order-cancel"
+              loading={cancelling}
+              onPress={async () => {
+                setCancelling(true);
+                try {
+                  await cancelOrder(order.id);
+                  show("Pesanan dibatalkan", "success");
+                } catch (e: any) {
+                  show(e?.message ?? "Batas waktu pembatalan sudah lewat", "error");
+                } finally {
+                  setCancelling(false);
+                }
+              }}
+            />
+            <Text style={styles.cancelHint}>Pembatalan hanya bisa dalam 5 detik setelah pesanan dibuat</Text>
           </View>
         ) : null}
       </ScrollView>
@@ -348,4 +408,21 @@ const useStyles = makeStyles((colors) => ({
     marginTop: spacing.xs,
   },
   methodChipText: { fontFamily: fonts.medium, fontSize: 12, color: colors.onSurfaceTertiary },
+  reviewedTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.success,
+  },
+  reviewedText: { fontFamily: fonts.medium, fontSize: 12.5, color: colors.onSuccess, flex: 1 },
+  cancelHint: {
+    fontFamily: fonts.regular,
+    fontSize: 11.5,
+    color: colors.muted,
+    textAlign: "center",
+    marginTop: spacing.xs,
+  },
 }));
