@@ -1,0 +1,62 @@
+{
+  "summary": "EATLY Phase 1 backend + frontend regression run. Backend: 16/16 pytest tests passed (auth register/login/me, restaurants list/community/search/detail/menu, reels, favorites toggle + counts, invalid ids -> 404, missing/invalid token -> 401). Frontend on mobile viewport 390x844 via EXPO_PUBLIC_BACKEND_URL: demo login (andi@eatly.com), Beranda (3 reels, 6 restaurants, search 'laksa' -> 1), restaurant detail (hero + info card + HALAL/Buka pills + tabs), favorite toggle -> Favorit tab updates, Customize sheet opens/closes correctly (no leftover overlay after add), item with options adds to cart with correct price (Rendang Sapi Rp 68.000 x2 = Rp 136.000), floating cart bar navigates to /cart, stepper +/- works, remove works, checkout tap shows expected 'hadir di fase berikutnya' toast (intentional), profil shows user info + referral code + logout returns to /auth/login. CRITICAL bug found: BottomSheetTextInput (Catatan untuk dapur) in CustomizeSheet.tsx crashes on web with 'RNTextInput.default.State.currentlyFocusedInput is not a function' — @gorhom/bottom-sheet + react-native-web incompatibility. Also seen: RN web deprecation warnings for shadow* props and props.pointerEvents (non-blocking).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "CustomizeSheet / BottomSheetTextInput (Catatan untuk dapur)",
+        "issue": "Focusing/typing in the notes field throws uncaught error 'RNTextInput.default.State.currentlyFocusedInput is not a function' on web (react-native-web). Error boundary/dev overlay appears and subsequent taps (navigate to /cart) are blocked. Item WITHOUT notes still adds fine, but any user who taps the notes field gets stuck. Reference: /app/frontend/src/components/CustomizeSheet.tsx:194",
+        "testID": "customize-notes",
+        "priority": "CRITICAL"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Global (react-native-web console)",
+        "issues": [
+          "Deprecation warning: 'shadow*' style props are deprecated. Use 'boxShadow'. Multiple screens.",
+          "Deprecation warning: props.pointerEvents is deprecated. Use style.pointerEvents. Seen on restaurant detail."
+        ]
+      }
+    ],
+    "react_native_issues": [
+      {
+        "component": "@gorhom/bottom-sheet BottomSheetTextInput",
+        "issue": "Not compatible with current react-native-web build — calls TextInputState.currentlyFocusedInput() which does not exist on web (renamed to currentlyFocusedField). Replace with platform-specific input (Platform.select: use plain TextInput on web) or upgrade @gorhom/bottom-sheet to a version that fixes this. Reference: /app/frontend/src/components/CustomizeSheet.tsx:194"
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/conftest.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Fix CustomizeSheet notes input on web: swap BottomSheetTextInput for a Platform-conditional component — on web use react-native TextInput (inside a plain View); keep BottomSheetTextInput only on native. This resolves the 'currentlyFocusedInput is not a function' crash blocking the customize + navigate-to-cart flow when users interact with the Catatan field.",
+    "(Low priority) Replace deprecated shadow* style props with boxShadow across screens/components to silence RN web warnings.",
+    "(Low priority) Replace remaining props.pointerEvents with style.pointerEvents (likely inside restaurant/[id].tsx or a shared component)."
+  ],
+  "critical_code_review_comments": [
+    "server.py is single-file (~580 lines) — acceptable now, but consider splitting into routers/auth.py, routers/restaurants.py, seed.py before Phase 2 to stay under 700 lines.",
+    "Registration referral_code generation uses body.name.upper() with year — collisions possible for users with same first name. Not urgent for Phase 1.",
+    "GET /api/favorites builds ids via ObjectId(); non-ObjectId favorite records would silently be dropped — currently fine because all restaurants use ObjectId.",
+    "on_event startup/shutdown are deprecated in FastAPI — consider migrating to lifespan context in a future iteration."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (new)",
+    "/app/backend/tests/conftest.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (16/16)",
+    "frontend": "~90% (all screens/flows work; only Catatan/notes input in Customize sheet is broken on web)"
+  },
+  "seed_data_creation": "None — used seeded demo diner andi@eatly.com / password123. Test registrations use @eatly.example.com emails (not cleaned up; volume is negligible).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend regression is at /app/backend/tests/backend_test.py — run `pytest /app/backend/tests/ -v`. Use EXPO_PUBLIC_BACKEND_URL from /app/frontend/.env. Demo credentials: andi@eatly.com / password123 (also in /app/memory/test_credentials.md). To retest the frontend fix: after main agent swaps BottomSheetTextInput, focus/type in the Catatan field in the Customize sheet, tap 'Tambah ke Keranjang', then tap the floating orange cart bar — it should navigate to /cart without any Uncaught Error overlay. Also verify the notes text shows up under the line item in Cart.",
+  "rca_of_issue": "CustomizeSheet uses BottomSheetTextInput from @gorhom/bottom-sheet. On web (react-native-web), that component internally calls TextInputState.currentlyFocusedInput() to blur the previously focused input. react-native-web only exposes currentlyFocusedField(), so the call throws 'currentlyFocusedInput is not a function' the moment the Catatan input is focused (verified reproducer: page.fill on data-testid=customize-notes triggers a pageerror). Because the throw happens during a synthetic event handler, Expo's dev error overlay mounts and captures subsequent touch events, so the user can no longer tap the floating cart bar to navigate to /cart. Reproduction: login as demo diner → tap any restaurant → tap 'Tambah' on Rendang Sapi → tap the 'Catatan untuk dapur' TextInput → error overlay appears. Mitigation: use Platform.OS === 'web' to render a plain react-native TextInput (styled the same) inside the BottomSheetScrollView instead of BottomSheetTextInput; keep BottomSheetTextInput only on native platforms."
+}

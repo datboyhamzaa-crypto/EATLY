@@ -1,0 +1,172 @@
+{
+  "app_name": "EATLY",
+  "personality": "4 Tactile / Playful LIGHT",
+  "personality_one_liner": "A warm, sensory, and highly tactile food discovery experience that pairs vivid orange branding with soft cream backgrounds, plush rounded cards, and pill-shaped badges to make ordering feel delightful and intuitive.",
+  "color": {
+    "surface": "#F7F3EE",
+    "onSurface": "#1A1D26",
+    "surfaceSecondary": "#FFFFFF",
+    "onSurfaceSecondary": "#1A1D26",
+    "surfaceTertiary": "#F3F4F6",
+    "onSurfaceTertiary": "#4B5563",
+    "surfaceInverse": "#1A1D26",
+    "onSurfaceInverse": "#FFFFFF",
+    "brand": "#F97316",
+    "brandPrimary": "#F97316",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#FFF7ED",
+    "onBrandSecondary": "#EA580C",
+    "brandTertiary": "#FFEDD5",
+    "onBrandTertiary": "#C2410C",
+    "success": "#D1FAE5",
+    "onSuccess": "#065F46",
+    "warning": "#FEF3C7",
+    "onWarning": "#92400E",
+    "error": "#FEE2E2",
+    "onError": "#991B1B",
+    "border": "#E5E7EB",
+    "borderStrong": "#D1D5DB",
+    "divider": "#F3F4F6",
+    "muted": "#6B7280",
+    "onBrand": "#FFFFFF"
+  },
+  "typography": {
+    "displayFontFamily": "Plus Jakarta Sans",
+    "textFontFamily": "Plus Jakarta Sans",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous padding around content. Rely on whitespace on the warm background to frame the white cards. Tappable zones must be at least 44x44pt.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 16,
+    "xl": 20,
+    "pill": 999
+  },
+  "shadow_tier": "1",
+  "navigation": "bottom_tabs",
+  "icon_set": "Ionicons",
+  "glassmorphism": {
+    "enabled": "true",
+    "do's": [
+      "Use glass overlay on translucent circular buttons (back, favorite, share) floating over the hero photo in Restaurant Detail."
+    ],
+    "dont's": [
+      "Do not use blur on standard cards or the bottom tab bar. The tab bar is solid white to anchor the soft app background."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Beranda (Home / Discovery)",
+      "purpose": "A lush, image-heavy discovery feed showing food reels and community restaurant recommendations.",
+      "states": {
+        "loading": "Skeleton UI showing card shapes and image placeholders.",
+        "empty": "Illustration of a plate with 'Tidak ada restoran terdekat' and a retry button.",
+        "error": "Message 'Gagal memuat restoran' with retry button."
+      },
+      "layout": "Vertical ScrollView with horizontal sections. White cards (surfaceSecondary) sit on the warm cream background (surface) with md/lg spacing. Use large edge-to-edge layout for reels if applicable. Cards have radius lg/xl."
+    },
+    {
+      "name": "Restaurant Detail",
+      "purpose": "Showcase the restaurant and menu with an immersive hero and structured tabs.",
+      "states": {
+        "loading": "Spinner over hero image placeholder.",
+        "empty": "No items found in menu.",
+        "error": "Failed to load restaurant data."
+      },
+      "layout": "Hero Section: A Stack with clipBehavior 'none'. Top 30% of screen is the hero image. A white overlapping card is positioned at `top: imageHeight - (cardHeight / 2)`. Translucent floating back/share buttons sit on top of the image. Below the hero is a sticky Tab bar (Menu/Ulasan/Info). Menu list items have quantity steppers inline."
+    },
+    {
+      "name": "Menu Item Customize (Bottom Sheet)",
+      "purpose": "Allows users to select variations, add-ons, and special instructions before adding to cart.",
+      "states": {
+        "loading": "N/A - Data usually passed locally.",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "Uses @gorhom/bottom-sheet. Clean white sheet with radius xl at top corners. Large item image at the top. Radio buttons and checkboxes for options. Sticky primary CTA at the bottom to 'Tambah ke Keranjang'."
+    },
+    {
+      "name": "Cart & Checkout Flow",
+      "purpose": "Floating cart bar provides constant access; checkout handles final review and mock payment.",
+      "states": {
+        "loading": "Processing payment spinner.",
+        "empty": "Cart empty illustration.",
+        "error": "Payment failed dialog."
+      },
+      "layout": "Floating Cart Bar: Animated.View positioned absolutely at bottom, entering via SlideInDown.springify. Color is brandPrimary (Orange), radius pill or xl, padded heavily. Sits above safe area. Checkout Screen: Summary list, total breakdown, 'Bayar' button. Payment Success: Soft orange radial glow background at top, filled circular check icon, Order ID chip, and QR code for in-store claiming."
+    },
+    {
+      "name": "Profil",
+      "purpose": "User management and referral sharing.",
+      "states": {
+        "loading": "Spinner.",
+        "empty": "N/A",
+        "error": "N/A"
+      },
+      "layout": "Full-bleed orange (brandPrimary) header block extending into the safe area. Avatar is centered. Below the header, a dark navy (surfaceInverse) referral card sits as the focal point with orange accent text. Settings list items follow below in surfaceSecondary cards."
+    }
+  ],
+  "images": {
+    "hero_restaurant": {
+      "url": "https://images.unsplash.com/photo-1613274554329-70f997f5789f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODB8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjByZXN0YXVyYW50JTIwaW50ZXJpb3IlMjBicmlnaHR8ZW58MHx8fHwxNzkwMjA5NTAyfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Modern bright restaurant interior"
+    },
+    "food_nasi_goreng": {
+      "url": "https://images.unsplash.com/photo-1647093953000-9065ed6f85ef?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNzl8MHwxfHNlYXJjaHwxfHxuYXNpJTIwZ29yZW5nJTIwaW5kb25lc2lhbiUyMGZvb2R8ZW58MHx8fHwxNzkwMjA5NTAyfDA&ixlib=rb-4.1.0&q=85",
+      "alt": "A white plate topped with Nasi Goreng and vegetables"
+    },
+    "food_sate_ayam": {
+      "url": "https://images.pexels.com/photos/37076559/pexels-photo-37076559.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Plate of Sate Ayam skewers on a wooden table"
+    },
+    "user_avatar": {
+      "url": "https://images.pexels.com/photos/13932774/pexels-photo-13932774.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Smiling young Indonesian woman portrait"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Ensure the floating cart bar is implemented as an absolute Animated.View with a spring animation, heavily rounded corners, and brand orange background. It must sit safely above the home indicator.",
+    "Implement the overlapping hero card pattern on the Restaurant Detail screen. Use a Stack layout with `clipBehavior: 'none'`. The white info card should straddle the bottom edge of the hero image (positioned top = image_height - card_height / 2).",
+    "Use soft tint pills for badges. Green (success/halal) should use #D1FAE5 background and #065F46 text. Yellow (warning/limited) should use #FEF3C7 background and #92400E text.",
+    "The app background is intentionally a warm cream/off-white (`surface`: #F7F3EE). Do not use pure white for the app background. White is strictly reserved for the overlapping cards and list items (`surfaceSecondary`: #FFFFFF) to create soft contrast.",
+    "The Profil screen must feature a full orange header block and a dark charcoal/navy (`surfaceInverse`) referral card with bright orange accents.",
+    "Include inline quantity steppers (+/- buttons) directly inside the menu list items.",
+    "Never use blue anywhere in the app. Use the defined palette.",
+    "For the bottom tab bar, active state should be orange with label visible, inactive state should be gray (muted) icon only."
+  ],
+  "haptics": {
+    "tab_press": "selection",
+    "add_to_cart": "medium",
+    "stepper_increment": "light",
+    "stepper_decrement": "light",
+    "checkout_success": "success"
+  }
+}
